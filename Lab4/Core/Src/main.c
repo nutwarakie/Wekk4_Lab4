@@ -54,6 +54,7 @@ uint32_t TimeStampLEDOn = 0;
 uint8_t mode = 0;
 uint32_t Response = 0;
 uint8_t Get =0;
+uint32_t Delay = 0;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -113,13 +114,14 @@ int main(void) {
 
 		/* USER CODE BEGIN 3 */
 		if (mode == 1 && Get == 0) {
-			if (HAL_GetTick() - TimeStampFailing >= 1000 +((22695477* ADCData[0]) +ADCData[1])% 10000)
+			if (HAL_GetTick() - TimeStampFailing >= Delay)
 
 			{
 
 				HAL_GPIO_WritePin(LD2_GPIO_Port, LD2_Pin, SET);
 				TimeStampLEDOn = HAL_GetTick();
 				Get = 1;
+				mode=1;
 			}
 		}
 
@@ -327,13 +329,13 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
 		if (mode == 0) {
 			HAL_GPIO_WritePin(LD2_GPIO_Port, LD2_Pin, RESET);
 			TimeStampFailing = HAL_GetTick();
+			Delay = 1000 +((22695477* ADCData[0]) +ADCData[1])% 10000;
 			mode = 1;
 		} else {
-
+			Get = 0;
 			TimeStampRising = HAL_GetTick();
 			Response = TimeStampRising - TimeStampLEDOn;
 			mode =0;
-			Get = 0;
 		}
 	}
 
